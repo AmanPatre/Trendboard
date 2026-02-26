@@ -22,7 +22,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [explainingArticle, setExplainingArticle] = useState<{ id: string, text: string, cached?: any } | null>(null);
 
-  
+
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,7 +37,7 @@ export default function Home() {
       setFetching(false);
     }
 
-    
+
     const timer = setTimeout(() => {
       if (user) loadInitialNews();
     }, 300);
@@ -65,7 +65,7 @@ export default function Home() {
       console.error("Auth error", error);
       let errorMessage = 'Authentication failed. Please check your credentials.';
 
-      
+
       if (error.message) {
         const match = error.message.match(/Firebase: (.*?)\s*\(/);
         if (match && match[1]) {
@@ -96,7 +96,7 @@ export default function Home() {
 
           <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-800 w-full overflow-hidden">
 
-            {}
+            { }
             <div className="flex border-b border-zinc-200 dark:border-zinc-800">
               <button
                 onClick={() => { setIsLoginMode(true); setAuthError(''); }}
@@ -187,7 +187,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans text-zinc-900 dark:text-zinc-50">
-      {}
+      { }
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight">Trendboard.</h1>
@@ -201,7 +201,7 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <MarketPulseBanner />
 
-        {}
+        { }
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative w-full md:max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -232,10 +232,10 @@ export default function Home() {
           </div>
         </div>
 
-        {}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {}
-          <div className="lg:col-span-3 space-y-6">
+        { }
+        <div className="flex flex-col lg:grid lg:grid-cols-4 gap-8">
+          { }
+          <div className="order-2 lg:order-1 lg:col-span-3 space-y-6">
             {fetching ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -263,10 +263,14 @@ export default function Home() {
             )}
           </div>
 
-          {}
-          <div className="lg:col-span-1 space-y-6">
-            <IpoHeatTracker />
-            <TrendingTopicsChart />
+          { }
+          <div className="order-1 lg:order-2 lg:col-span-1 flex flex-col sm:flex-row lg:flex-col gap-6 w-full">
+            <div className="flex-1">
+              <IpoHeatTracker />
+            </div>
+            <div className="flex-1">
+              <TrendingTopicsChart />
+            </div>
           </div>
         </div>
       </main>
