@@ -264,7 +264,7 @@ export default function Home() {
           </div>
 
           { }
-          <div className="order-1 lg:order-2 lg:col-span-1 flex flex-col sm:flex-row lg:flex-col gap-6 w-full">
+          <div className="order-1 lg:order-2 lg:col-span-1 flex flex-col sm:flex-row lg:flex-col gap-6 w-full lg:sticky lg:top-24 h-fit">
             <div className="flex-1">
               <IpoHeatTracker />
             </div>
