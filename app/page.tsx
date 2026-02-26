@@ -10,6 +10,7 @@ import { Search, TrendingUp } from 'lucide-react';
 import { MarketPulseBanner } from '@/components/dashboard/MarketPulseBanner';
 import { IpoHeatTracker } from '@/components/dashboard/IpoHeatTracker';
 import { ExplainTrendModal } from '@/components/dashboard/ExplainTrendModal';
+import { TrendingTopicsChart } from '@/components/dashboard/TrendingTopicsChart';
 
 const CATEGORIES = ["All", "General", "Crypto", "Forex", "Merger"];
 
@@ -141,14 +142,7 @@ export default function Home() {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             <IpoHeatTracker />
-            {/* Placeholder for future sidebar widgets like Trending Topics */}
-            <div className="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm h-64 flex flex-col items-center justify-center text-center">
-              <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-3">
-                <TrendingUp className="w-5 h-5 text-zinc-400" />
-              </div>
-              <h3 className="text-sm font-bold">Trending Topics</h3>
-              <p className="text-xs text-zinc-500 mt-1">Coming in Phase 5</p>
-            </div>
+            <TrendingTopicsChart />
           </div>
         </div>
       </main>

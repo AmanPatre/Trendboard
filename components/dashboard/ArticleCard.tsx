@@ -1,6 +1,6 @@
 import { NewsArticle } from '@/lib/types';
 import { formatDistanceToNow } from 'date-fns';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Sparkles } from 'lucide-react';
 
 interface ArticleCardProps {
     article: NewsArticle;
@@ -31,7 +31,7 @@ export function ArticleCard({ article, onExplainClick }: ArticleCardProps) {
     }
 
     return (
-        <div className="flex flex-col p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group">
+        <div className="flex flex-col p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-full">
                     {article.source || "General"}
@@ -70,12 +70,10 @@ export function ArticleCard({ article, onExplainClick }: ArticleCardProps) {
                 </span>
                 <button
                     onClick={() => onExplainClick?.(article.id)}
-                    className="text-xs font-medium text-zinc-900 dark:text-zinc-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1"
+                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-md px-2 py-1 -mr-2"
                 >
-                    Explain Why This Matters
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Explain Trend
                 </button>
             </div>
         </div>

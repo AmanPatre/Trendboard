@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trendboard: AI-Powered Financial Intelligence
 
-## Getting Started
+Trendboard is an absolute premium AI-powered financial dashboard built for proactive investors. It ingests thousands of market articles, analyzes sentiment, extracts moving topics, and computes an exclusive "Market Pulse Score" in real time. 
 
-First, run the development server:
+Built with the modern stack: **Next.js 15 (App Router)**, **Firebase**, **OpenAI/Gemini**, **Tailwind CSS**, and **Recharts**.
 
+## 🚀 Features
+
+- **Automated AI Intelligence**: Firebase Cloud Functions continuously fetch leading market news (via Finnhub), processing articles through LLMs to extract a concise summary, 1-3 critical topics, and strict market sentiment (-1 to 1).
+- **Market Pulse Score**: A composite algorithm that calculates the broad market direction by weighting the average sentiment against the logarithmic volume of underlying news events. 
+- **IPO Heat Tracker**: A real-time monitoring ring that specifically listens to IPO noise in the market and displays its velocity over time. 
+- **"Explain This Trend"**: Directly talk to the AI to convert breaking news headlines into a structured advisory containing short/long term impact estimates specifically for investors.
+- **Top Frequencies**: Real-time interactive area charts rendered with `Recharts` to showcase the most trending sub-topics continuously sweeping across financial media.
+
+## 🛠 Tech Stack
+
+- **Frontend:** Next.js (App Router), React, Tailwind CSS, Recharts, Lucide-React
+- **Backend:** Firebase Cloud Functions, Firestore, Firebase Auth
+- **AI Integration:** Google Gemini SDK (`gemini-2.5-flash`)
+- **Market Data:** Finnhub API
+
+## 📦 Getting Started
+
+### 1. Pre-requisites
+- Node.js > 18.0.0
+- A Firebase Project (with Firestore, Auth Provider enabled)
+- Finnhub API Key 
+- Google Gemini API Key
+
+### 2. Cloud Functions Setup
+Add your `.env` securely to the `functions` directory:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+FINNHUB_API_KEY=your_key_here
+GEMINI_API_KEY=your_key_here
+```
+Deploy the backend:
+```bash
+cd functions
+npm install
+npm run deploy
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Frontend Setup
+Add your `.env.local` inside the root tree:
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY="..."
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="..."
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="..."
+NEXT_PUBLIC_FIREBASE_APP_ID="..."
+```
+Run the development environment locally:
+```bash
+npm install
+npm run dev
+```
+Open `http://localhost:3000` to view the dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔒 Security
+All interactions happen entirely inside authenticated sessions. Firestore Rules explicitly secure data modifications to *only* the internal Cloud Service Account instances through Admin SDKs. All reads are scoped to active logged-in users. 
