@@ -2,6 +2,8 @@
 
 <div align="center">
  <img width="1807" height="880" alt="image" src="https://github.com/user-attachments/assets/fd1b829b-28e1-4456-b0f3-dc4f8fad9cbc" />
+ <img width="530" height="702" alt="image" src="https://github.com/user-attachments/assets/c741b83c-69fc-4e3c-b6f5-02ad5271f57b" />
+
 
   <img src="./mobile-preview.png" alt="Trendboard Mobile View" width="28%"/>
 </div>
