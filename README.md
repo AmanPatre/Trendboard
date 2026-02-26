@@ -1,5 +1,10 @@
 # Trendboard 📈
 
+<div align="center">
+  <img src="./desktop-preview.png" alt="Trendboard Desktop View" width="70%"/>
+  <img src="./mobile-preview.png" alt="Trendboard Mobile View" width="28%"/>
+</div>
+
 Trendboard is an autonomous, AI-powered financial intelligence dashboard that automatically aggregates, translates, analyzes, and visualizes global market news in real-time.
 
 Built as a modern, full-stack Next.js application, Trendboard utilizes Google's Gemini 2.5 Flash LLM to autonomously extract sentiment, underlying topics, and market movement predictions from raw data feeds, completely eliminating the need for manual curation or translation.
@@ -56,6 +61,36 @@ graph TD
 - **Styling:** Engineered with **Tailwind CSS v4** utilizing a custom, minimal, dark-mode-first fintech aesthetic (glassmorphism, subtle borders, high-contrast typography).
 - **Authentication:** Secured by **Firebase Auth**, offering both Google Sign-In and traditional Email/Password registration. Unauthenticated users are seamlessly granted "Anonymous Sessions" to interact with specific premium features before committing.
 - **Data Visualization:** Utilizes **Recharts** to query the `topicStats` Firestore collection and dynamically generate an interactive Area Chart representing the most frequently discussed AI-extracted topics over time.
+
+## 🔒 Security Architecture (Firestore Rules)
+To ensure the integrity of the AI-generated financial data, strict NoSQL security rules are enforced. The client is restricted to Read-Only access, while Write permissions are strictly isolated to the authenticated Cloud Function backend:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Analytics & Processed News: Publicly readable for the dashboard, but strictly sealed from client writes.
+    // ONLY the backend Cloud Function architecture can write or modify this data.
+    match /newsArticles/{document=**} {
+      allow read: if true;
+      allow write: if false; 
+    }
+    match /topicStats/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /marketPulse/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // User Profiles: Securely isolated. Users can only read/write their own preferences.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
 
 ## 🎯 Key Design Decisions
 
