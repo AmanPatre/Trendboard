@@ -36,7 +36,7 @@ export function ExplainTrendModal({ articleId, textToExplain, onClose, cachedExp
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-2xl shadow-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-200">
 
-                {/* Header */}
+                {}
                 <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-950/50">
                     <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-semibold">
                         <Sparkles className="w-5 h-5" />
@@ -50,7 +50,7 @@ export function ExplainTrendModal({ articleId, textToExplain, onClose, cachedExp
                     </button>
                 </div>
 
-                {/* Content */}
+                {}
                 <div className="p-6">
                     {loading ? (
                         <div className="space-y-4">
@@ -91,6 +91,7 @@ export function ExplainTrendModal({ articleId, textToExplain, onClose, cachedExp
                                 <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30">
                                     <h4 className="text-xs font-bold text-indigo-800 dark:text-indigo-400 uppercase tracking-wider mb-2">Long-Term Outlook</h4>
                                     <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{explanation.longTermImpact}</p>
+
                                 </div>
                             </div>
 
@@ -101,3 +102,4 @@ export function ExplainTrendModal({ articleId, textToExplain, onClose, cachedExp
         </div>
     );
 }
+

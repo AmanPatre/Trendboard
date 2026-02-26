@@ -16,7 +16,7 @@ export function MarketPulseBanner() {
     const [pulse, setPulse] = useState<MarketPulseData | null>(null);
 
     useEffect(() => {
-        // Listen to real-time updates for the market pulse score
+        
         const unsubscribe = onSnapshot(doc(db, 'marketPulse', 'latest'), (doc) => {
             if (doc.exists()) {
                 setPulse(doc.data() as MarketPulseData);
@@ -58,7 +58,7 @@ export function MarketPulseBanner() {
 
     return (
         <div className={`w-full rounded-2xl border ${style.border} ${style.bg} p-4 flex items-center justify-between mb-8 shadow-sm transition-colors duration-500 relative overflow-hidden group`}>
-            {/* Subtle pulse animation background */}
+            {}
             <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-current opacity-5 rounded-full blur-xl group-hover:animate-pulse pointer-events-none" style={{ color: style.text.split(' ')[0].replace('text-', '') }} />
 
             <div className="flex items-center gap-4 z-10">
@@ -88,3 +88,4 @@ export function MarketPulseBanner() {
         </div>
     );
 }
+

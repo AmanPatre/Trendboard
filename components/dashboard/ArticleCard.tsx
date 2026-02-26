@@ -79,3 +79,4 @@ export function ArticleCard({ article, onExplainClick }: ArticleCardProps) {
         </div>
     );
 }
+

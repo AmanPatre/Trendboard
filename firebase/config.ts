@@ -12,7 +12,7 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "demo",
 };
 
-// Initialize Firebase only once
+
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
@@ -20,3 +20,4 @@ const db = getFirestore(app);
 const functions = getFunctions(app);
 
 export { app, auth, db, functions };
+

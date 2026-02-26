@@ -1,7 +1,7 @@
 export type Sentiment = -1 | 0 | 1;
 
 export interface NewsArticle {
-    id: string; // Document ID from Firestore
+    id: string; 
     title: string;
     source: string;
     category: string;
@@ -10,12 +10,13 @@ export interface NewsArticle {
     topics: string[];
     explanation?: string;
     url: string;
-    createdAt: any; // Firestore Timestamp
+    createdAt: any; 
 }
 
 export interface TopicStat {
-    id: string; // Document ID (topic string lowercased)
+    id: string; 
     topic: string;
     frequency: number;
-    lastUpdated: any; // Firestore Timestamp
+    lastUpdated: any; 
 }
+

@@ -7,7 +7,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 admin.initializeApp();
 const db = admin.firestore();
 
-// Note: Secure these with Firebase Secrets matching Finnhub and Gemini keys.
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY || "demo";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 
@@ -25,14 +24,15 @@ interface FinnhubNewsItem {
     url: string;
 }
 
-// Prompt Engineering template
 const SYSTEM_PROMPT = `
 You are an expert financial analyst. Analyze the following news article text.
+ALL output MUST be in English. If the original text is in another language, translate it to English first.
 Return JSON ONLY strictly matching this schema:
 {
-  "summary": "1-2 sentence concise summary of the actual news event",
+  "title": "The article headline translated to English (or cleanly formatted if already English)",
+  "summary": "1-2 sentence concise summary of the actual news event in English",
   "sentiment": number (-1 for bearish/negative, 0 for neutral, 1 for bullish/positive),
-  "topics": ["Keyword1", "Keyword2", "Keyword3"] (Maximum 3 core financial/company topics)
+  "topics": ["Keyword1", "Keyword2", "Keyword3"] (Maximum 3 core financial/company topics in English)
 }
 No markdown, no explanation, only raw JSON.
 `;
@@ -41,12 +41,19 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
     try {
         logger.info("Starting scheduled news fetch...");
 
-        // 1. Fetch from Finnhub API
-        const response = await axios.get<FinnhubNewsItem[]>(
-            `https://finnhub.io/api/v1/news?category=general&token=${FINNHUB_API_KEY}`
-        );
+        const categoriesToFetch = ['general', 'crypto', 'forex', 'merger'];
+        let allArticles: FinnhubNewsItem[] = [];
 
-        const articles = response.data.slice(0, 10); // Process top 10 to save LLM costs
+        for (const cat of categoriesToFetch) {
+            try {
+                const response = await axios.get<FinnhubNewsItem[]>(
+                    `https://finnhub.io/api/v1/news?category=${cat}&token=${FINNHUB_API_KEY}`
+                );
+                allArticles = [...allArticles, ...response.data.slice(0, 3)];
+            } catch (err) {
+                logger.error(`Error fetching category ${cat}:`, err);
+            }
+        }
 
         const batch = db.batch();
 
@@ -54,20 +61,16 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
         let articleCount = 0;
         let ipoMentions = 0;
 
-        for (const article of articles) {
-            // Skip if we already processed this article
+        for (const article of allArticles) {
             const docRef = db.collection("newsArticles").doc(article.id.toString());
             const docSnap = await docRef.get();
             if (docSnap.exists) {
-                // Include existing recent articles in our pulse calculation if needed, 
-                // but for simplicity, we'll calculate pulse based on the *new* batch fetched.
                 continue;
             }
 
-            // 2. Process with LLM
             const promptText = `Headline: ${article.headline}\nContent: ${article.summary}`;
 
-            let aiData = { summary: article.summary, sentiment: 0, topics: ["General"] };
+            let aiData = { title: article.headline, summary: article.summary, sentiment: 0, topics: ["General"] };
 
             if (GEMINI_API_KEY) {
                 try {
@@ -90,7 +93,6 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
                 }
             }
 
-            // --- Phase 4 Analytics Tracking ---
             totalSentiment += aiData.sentiment;
             articleCount++;
 
@@ -101,9 +103,8 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
 
             if (isIpoRelated) ipoMentions++;
 
-            // 3. Store structured data
             batch.set(docRef, {
-                title: article.headline,
+                title: aiData.title || article.headline,
                 source: article.source,
                 category: article.category,
                 url: article.url,
@@ -113,7 +114,6 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
             });
 
-            // Update topic stats
             for (const topic of aiData.topics) {
                 const safeTopicId = topic.toLowerCase().replace(/[^a-z0-9]/g, '-');
                 const topicRef = db.collection("topicStats").doc(safeTopicId);
@@ -125,18 +125,14 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
             }
         }
 
-        // --- Phase 4: Market Pulse & IPO Heat Execution ---
         if (articleCount > 0) {
             const averageSentiment = totalSentiment / articleCount;
-            // Market Pulse Formula: average(sentiment) * log(newsCount + 1) to avoid log(1)=0 if using base 10
-            // Using Math.log1p (natural log of 1 + x) for better scaling with small numbers
             const pulseScore = averageSentiment * Math.log1p(articleCount);
 
             let pulseLabel = "Neutral";
             if (pulseScore > 0.5) pulseLabel = "Bullish";
             if (pulseScore < -0.5) pulseLabel = "Bearish";
 
-            // Store latest Market Pulse
             const pulseRef = db.collection("marketPulse").doc("latest");
             batch.set(pulseRef, {
                 score: pulseScore,
@@ -145,7 +141,6 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
                 basedOnCount: articleCount
             });
 
-            // Update IPO Heat Tracker
             if (ipoMentions > 0) {
                 const ipoRef = db.collection("topicStats").doc("ipo-heat");
                 batch.set(ipoRef, {
@@ -168,7 +163,6 @@ export const fetchFinancialNews = onSchedule("every 1 hours", async (event) => {
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 
 export const explainTrend = onCall(async (request) => {
-    // Ensure the user is authenticated (Optional based on security rules, but good practice)
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'User must be logged in to request explanations.');
     }
@@ -208,7 +202,6 @@ export const explainTrend = onCall(async (request) => {
 
         const explanationObj = JSON.parse(explanationText);
 
-        // Cache it in Firestore on the article document
         await db.collection("newsArticles").doc(articleId).update({
             explanation: explanationObj
         });

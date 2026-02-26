@@ -15,17 +15,16 @@ export async function fetchNewsArticles(
             orderBy('createdAt', 'desc')
         );
 
-        if (categoryFilter && categoryFilter !== 'All') {
-            q = query(q, where('category', '==', categoryFilter));
-        }
+        
+        
 
-        // Note: Firestore doesn't support full-text search natively well without external providers (Algolia). 
-        // For a minimal prototype, we'll fetch recently and filter client-side if a search query exists, 
-        // or limit the initial fetch.
-        if (!searchQuery) {
+        
+        
+        
+        if (!searchQuery && (!categoryFilter || categoryFilter === 'All')) {
             q = query(q, limit(ARTICLES_PER_PAGE));
         } else {
-            // If searching, we might need to fetch more and filter in memory for this simple implementation
+            
             q = query(q, limit(50));
         }
 
@@ -40,7 +39,25 @@ export async function fetchNewsArticles(
             ...doc.data()
         })) as NewsArticle[];
 
-        // Simple client-side search filtering
+        
+        if (categoryFilter && categoryFilter !== 'All') {
+            const lowerCat = categoryFilter.toLowerCase();
+            articles = articles.filter(a => {
+                const matchesDirect = a.topics.some(t => t.toLowerCase().includes(lowerCat)) ||
+                    a.title.toLowerCase().includes(lowerCat) ||
+                    a.summary.toLowerCase().includes(lowerCat) ||
+                    a.category.toLowerCase().includes(lowerCat);
+
+                
+                if (lowerCat === 'general') {
+                    const isSpecialized = ['crypto', 'forex', 'merger'].includes(a.category.toLowerCase());
+                    return matchesDirect || !isSpecialized;
+                }
+
+                return matchesDirect;
+            });
+        }
+
         if (searchQuery) {
             const lowerQuery = searchQuery.toLowerCase();
             articles = articles.filter(a =>
@@ -48,7 +65,10 @@ export async function fetchNewsArticles(
                 a.summary.toLowerCase().includes(lowerQuery) ||
                 a.topics.some(t => t.toLowerCase().includes(lowerQuery))
             );
-            articles = articles.slice(0, ARTICLES_PER_PAGE); // Paginate the filtered results
+        }
+
+        if (searchQuery || (categoryFilter && categoryFilter !== 'All')) {
+            articles = articles.slice(0, ARTICLES_PER_PAGE); 
         }
 
         const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
@@ -59,3 +79,4 @@ export async function fetchNewsArticles(
         return { articles: [], lastDoc: undefined };
     }
 }
+

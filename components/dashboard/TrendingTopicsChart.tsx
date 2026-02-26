@@ -16,7 +16,7 @@ export function TrendingTopicsChart() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch top 5 trending topics
+        
         const q = query(
             collection(db, 'topicStats'),
             orderBy('frequency', 'desc'),
@@ -26,9 +26,9 @@ export function TrendingTopicsChart() {
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const fetchedData = snapshot.docs
                 .map(doc => doc.data() as TopicStat)
-                .filter(stat => !stat.topic.toLowerCase().includes('ipo')) // Filter out the IPO tracker
-                .slice(0, 5) // Keep top 5
-                .reverse(); // Reverse for chart progression
+                .filter(stat => !stat.topic.toLowerCase().includes('ipo')) 
+                .slice(0, 5) 
+                .reverse(); 
 
             setData(fetchedData);
             setLoading(false);
@@ -57,9 +57,9 @@ export function TrendingTopicsChart() {
                 <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Trending Topics</h3>
             </div>
 
-            <div className="flex-grow -ml-6 -mb-5 z-10">
+            <div className="flex-grow z-10 w-full h-full pb-6">
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <AreaChart data={data} margin={{ top: 10, right: 30, left: 30, bottom: 20 }}>
                         <defs>
                             <linearGradient id="colorFrequency" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -73,7 +73,7 @@ export function TrendingTopicsChart() {
                             tick={{ fontSize: 10, fill: '#71717a' }}
                             dy={10}
                         />
-                        <YAxis hide domain={['dataMin - 1', 'dataMax + 2']} />
+                        <YAxis hide domain={[0, (dataMax: number) => Math.max(dataMax * 1.5, 5)]} />
                         <Tooltip
                             contentStyle={{
                                 backgroundColor: 'rgba(24, 24, 27, 0.9)',
@@ -100,3 +100,4 @@ export function TrendingTopicsChart() {
         </div>
     );
 }
+
