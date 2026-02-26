@@ -16,7 +16,7 @@ export function MarketPulseBanner() {
     const [pulse, setPulse] = useState<MarketPulseData | null>(null);
 
     useEffect(() => {
-        
+
         const unsubscribe = onSnapshot(doc(db, 'marketPulse', 'latest'), (doc) => {
             if (doc.exists()) {
                 setPulse(doc.data() as MarketPulseData);
@@ -57,8 +57,8 @@ export function MarketPulseBanner() {
     const style = getStyleAndIcon();
 
     return (
-        <div className={`w-full rounded-2xl border ${style.border} ${style.bg} p-4 flex items-center justify-between mb-8 shadow-sm transition-colors duration-500 relative overflow-hidden group`}>
-            {}
+        <div className={`w-full rounded-2xl border ${style.border} ${style.bg} p-4 flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 shadow-sm transition-colors duration-500 relative overflow-hidden group`}>
+            { }
             <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-current opacity-5 rounded-full blur-xl group-hover:animate-pulse pointer-events-none" style={{ color: style.text.split(' ')[0].replace('text-', '') }} />
 
             <div className="flex items-center gap-4 z-10">
@@ -79,11 +79,11 @@ export function MarketPulseBanner() {
                 </div>
             </div>
 
-            <div className="text-right z-10 hidden sm:block">
+            <div className="text-center sm:text-right z-10 shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-0 border-zinc-200/50 dark:border-zinc-800/50">
                 <div className="text-3xl font-black tracking-tighter" style={{ color: style.text.split(' ')[0].replace('text-', '') }}>
                     {pulse.score > 0 ? '+' : ''}{pulse.score.toFixed(2)}
                 </div>
-                <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Composite Score</div>
+                <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium mt-0.5">Composite Score</div>
             </div>
         </div>
     );

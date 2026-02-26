@@ -16,7 +16,7 @@ export function TrendingTopicsChart() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        
+
         const q = query(
             collection(db, 'topicStats'),
             orderBy('frequency', 'desc'),
@@ -26,9 +26,9 @@ export function TrendingTopicsChart() {
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const fetchedData = snapshot.docs
                 .map(doc => doc.data() as TopicStat)
-                .filter(stat => !stat.topic.toLowerCase().includes('ipo')) 
-                .slice(0, 5) 
-                .reverse(); 
+                .filter(stat => !stat.topic.toLowerCase().includes('ipo'))
+                .slice(0, 5)
+                .reverse();
 
             setData(fetchedData);
             setLoading(false);
