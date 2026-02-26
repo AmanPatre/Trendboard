@@ -6,7 +6,10 @@ import { ArticleCard } from '@/components/dashboard/ArticleCard';
 import { useEffect, useState } from 'react';
 import { NewsArticle } from '@/lib/types';
 import { fetchNewsArticles } from '@/lib/newsService';
-import { Search } from 'lucide-react';
+import { Search, TrendingUp } from 'lucide-react';
+import { MarketPulseBanner } from '@/components/dashboard/MarketPulseBanner';
+import { IpoHeatTracker } from '@/components/dashboard/IpoHeatTracker';
+import { ExplainTrendModal } from '@/components/dashboard/ExplainTrendModal';
 
 const CATEGORIES = ["All", "General", "Crypto", "Forex", "Merger"];
 
@@ -16,6 +19,7 @@ export default function Home() {
   const [fetching, setFetching] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [explainingArticle, setExplainingArticle] = useState<{ id: string, text: string, cached?: any } | null>(null);
 
   useEffect(() => {
     async function loadInitialNews() {
@@ -70,6 +74,8 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <MarketPulseBanner />
+
         {/* Top Controls: Search & Filters */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative w-full md:max-w-md">
@@ -91,8 +97,8 @@ export default function Home() {
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${activeCategory === cat
-                    ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
-                    : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
+                  : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700'
                   }`}
               >
                 {cat}
@@ -102,24 +108,59 @@ export default function Home() {
         </div>
 
         {/* Content Grid */}
-        {fetching ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="h-64 bg-zinc-200 dark:bg-zinc-800 rounded-2xl animate-pulse"></div>
-            ))}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Main News Feed */}
+          <div className="lg:col-span-3 space-y-6">
+            {fetching ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <div key={n} className="h-64 bg-zinc-200 dark:bg-zinc-800 rounded-2xl animate-pulse"></div>
+                ))}
+              </div>
+            ) : articles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {articles.map((article) => (
+                  <ArticleCard
+                    key={article.id}
+                    article={article}
+                    onExplainClick={(id) => setExplainingArticle({
+                      id,
+                      text: `${article.title}. ${article.summary}`,
+                      cached: article.explanation
+                    })}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                <p className="text-zinc-500">No news articles found for your criteria.</p>
+              </div>
+            )}
           </div>
-        ) : articles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
+
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            <IpoHeatTracker />
+            {/* Placeholder for future sidebar widgets like Trending Topics */}
+            <div className="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm h-64 flex flex-col items-center justify-center text-center">
+              <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-3">
+                <TrendingUp className="w-5 h-5 text-zinc-400" />
+              </div>
+              <h3 className="text-sm font-bold">Trending Topics</h3>
+              <p className="text-xs text-zinc-500 mt-1">Coming in Phase 5</p>
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-zinc-500">No news articles found for your criteria.</p>
-          </div>
-        )}
+        </div>
       </main>
+
+      {explainingArticle && (
+        <ExplainTrendModal
+          articleId={explainingArticle.id}
+          textToExplain={explainingArticle.text}
+          cachedExplanation={explainingArticle.cached}
+          onClose={() => setExplainingArticle(null)}
+        />
+      )}
     </div>
   );
 }
