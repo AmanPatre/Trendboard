@@ -1,0 +1,37 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Public read for news articles, restricted write
+    match /newsArticles/{articleId} {
+      allow read: if true;
+      allow write: if false; // Only Cloud Functions (Admin SDK) can write
+    }
+
+    // Public read for topic stats, restricted write
+    match /topicStats/{statId} {
+      allow read: if true;
+      allow write: if false; 
+    }
+
+    // Public read for market pulse, restricted write
+    match /marketPulse/{pulseId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Users can only read and write their own preferences
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
