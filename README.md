@@ -5,7 +5,7 @@
  <img width="530" height="702" alt="image" src="https://github.com/user-attachments/assets/c741b83c-69fc-4e3c-b6f5-02ad5271f57b" />
 
 
-  <img src="./mobile-preview.png" alt="Trendboard Mobile View" width="28%"/>
+ 
 </div>
 
 Trendboard is an autonomous, AI-powered financial intelligence dashboard that automatically aggregates, translates, analyzes, and visualizes global market news in real-time.
