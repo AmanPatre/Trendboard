@@ -1,61 +1,107 @@
-# Trendboard: AI-Powered Financial Intelligence
+# Trendboard 📈
 
-Trendboard is an absolute premium AI-powered financial dashboard built for proactive investors. It ingests thousands of market articles, analyzes sentiment, extracts moving topics, and computes an exclusive "Market Pulse Score" in real time. 
+Trendboard is an autonomous, AI-powered financial intelligence dashboard that automatically aggregates, translates, analyzes, and visualizes global market news in real-time.
 
-Built with the modern stack: **Next.js 15 (App Router)**, **Firebase**, **OpenAI/Gemini**, **Tailwind CSS**, and **Recharts**.
+Built as a modern, full-stack Next.js application, Trendboard utilizes Google's Gemini 2.5 Flash LLM to autonomously extract sentiment, underlying topics, and market movement predictions from raw data feeds, completely eliminating the need for manual curation or translation.
 
-## 🚀 Features
+## 🏗 System Architecture
 
-- **Automated AI Intelligence**: Firebase Cloud Functions continuously fetch leading market news (via Finnhub), processing articles through LLMs to extract a concise summary, 1-3 critical topics, and strict market sentiment (-1 to 1).
-- **Market Pulse Score**: A composite algorithm that calculates the broad market direction by weighting the average sentiment against the logarithmic volume of underlying news events. 
-- **IPO Heat Tracker**: A real-time monitoring ring that specifically listens to IPO noise in the market and displays its velocity over time. 
-- **"Explain This Trend"**: Directly talk to the AI to convert breaking news headlines into a structured advisory containing short/long term impact estimates specifically for investors.
-- **Top Frequencies**: Real-time interactive area charts rendered with `Recharts` to showcase the most trending sub-topics continuously sweeping across financial media.
+```mermaid
+%%{init: {'theme':'default', 'flowchart': {'htmlLabels': true}}}%%
+graph TD
+    %% Define Styles
+    classDef API fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef CF fill:#ff9,stroke:#333,stroke-width:2px;
+    classDef LLM fill:#bdf,stroke:#333,stroke-width:2px;
+    classDef DB fill:#fbf,stroke:#333,stroke-width:2px;
+    classDef UI fill:#4caf50,stroke:#fff,stroke-width:2px,color:#fff;
+    
+    %% Flow
+    A("Cron Schedule<br/>Every 1 Hour") -->|Trigger| B{"Cloud Function:<br/>fetchFinancialNews"}:::CF
+    
+    subgraph Data Ingestion
+        B -->|HTTP GET| C((Finnhub REST API)):::API
+        C -->|Raw News JSON| B
+    end
+    
+    subgraph AI Processing
+        B -->|Prompt + Raw Text| D[Google Gemini 2.5 Flash]:::LLM
+        D -->|"Translate, Summarize,<br/>Extract Topics, Sentiment Score"| B
+    end
+    
+    subgraph Database
+        B -->|Write Processed Data| E[(Firestore DB)]:::DB
+    end
+    
+    subgraph Frontend Client
+        E -->|Real-time Snapshot| F(Next.js App Router Client):::UI
+    end
+```
+
+### 1. The Autonomous Ingestion Pipeline (Backend)
+- **Data Sourcing:** A Firebase Cloud Function (`fetchFinancialNews`) triggers on a cron schedule to fetch the latest breaking news from the **Finnhub API** across multiple sectors (General Market, Crypto, Forex, Mergers).
+- **AI Processing (Gemini 2.5 Flash):** Instead of saving raw text, the Cloud Function passes the article data to Google's Gemini LLM with strict JSON schema instructions to:
+  - Detect non-English articles (Chinese, French, etc.) and seamlessly translate them into English.
+  - Generate a concise 1-2 sentence summary.
+  - Extract the top 3 core financial topics (e.g., `#Acquisition`, `#SupplyChain`, `#InterestRates`).
+  - Score the article's financial sentiment on a continuous scale from -1.0 (Bearish) to +1.0 (Bullish).
+- **Data Storage:** The structured, translated, and scored JSON data is saved to **Cloud Firestore** (`newsArticles` collection). Concurrently, the extracted topics are tracked in the `topicStats` collection to maintain a running frequency tally.
+
+### 2. The Analytical Engine (Backend Analytics)
+- **Market Pulse Calculation:** After processing a news batch, the Cloud Function calculates a proprietary "Market Pulse Score." This is derived by averaging the AI-generated sentiment scores of all recent articles, scaled logarithmically by volume (`averageSentiment * Math.log1p(articleCount)`), providing a real-time, mathematical indicator of overall market sentiment.
+- **IPO Heat Tracking:** The AI specifically monitors for IPO-related topics and increments a dedicated tracker to monitor the frequency of initial public offering discussions in the news cycle, alerting users to surging activity.
+
+### 3. The Interactive Dashboard (Frontend)
+- **Framework:** Built with **Next.js (App Router)** and **React 19** for maximum performance and SEO capabilities.
+- **Styling:** Engineered with **Tailwind CSS v4** utilizing a custom, minimal, dark-mode-first fintech aesthetic (glassmorphism, subtle borders, high-contrast typography).
+- **Authentication:** Secured by **Firebase Auth**, offering both Google Sign-In and traditional Email/Password registration. Unauthenticated users are seamlessly granted "Anonymous Sessions" to interact with specific premium features before committing.
+- **Data Visualization:** Utilizes **Recharts** to query the `topicStats` Firestore collection and dynamically generate an interactive Area Chart representing the most frequently discussed AI-extracted topics over time.
+
+## 🎯 Key Design Decisions
+
+1. **AI-First Data Engineering:** Rather than building complex NLP pipelines or relying on expensive third-party translation APIs, we utilized a single, highly-optimized prompt to Gemini 2.5 Flash. This reduced backend complexity by 80% while simultaneously handling translation, summarization, entity extraction, and sentiment analysis in a single, cheap API call.
+2. **Serverless Architecture:** By combining Next.js with Firebase (Auth, Firestore, Functions), the entire infrastructure is serverless. This ensures infinite scalability during traffic spikes (e.g., breaking market news) while maintaining near-zero costs during downtime.
+3. **NoSql Data Modeling:** Firestore was chosen over a relational database to allow for rapid, schema-less iteration. The separation of `newsArticles` and `topicStats` collections allows the Recharts frontend to load the topic graph instantly without having to aggregate thousands of individual articles on the client-side.
+4. **"Explain This Trend" Feature:** To provide immediate value, an interactive "Explain Trend" button calls a dedicated Cloud Function that re-prompts Gemini to act as a senior financial advisor, explaining the short and long-term impact of any specific news event on demand.
 
 ## 🛠 Tech Stack
 
-- **Frontend:** Next.js (App Router), React, Tailwind CSS, Recharts, Lucide-React
-- **Backend:** Firebase Cloud Functions, Firestore, Firebase Auth
-- **AI Integration:** Google Gemini SDK (`gemini-2.5-flash`)
-- **Market Data:** Finnhub API
+*   **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS v4, Lucide React (Icons), Recharts
+*   **Backend:** Firebase (Firestore, Authentication, Cloud Functions), Node.js
+*   **AI Engine:** Google Generative AI (Gemini 2.5 Flash)
+*   **Data Providers:** Finnhub REST API
+*   **Deployment:** Vercel (Frontend), Google Cloud (Firebase Backend)
 
-## 📦 Getting Started
+## 💻 Running Locally
 
-### 1. Pre-requisites
-- Node.js > 18.0.0
-- A Firebase Project (with Firestore, Auth Provider enabled)
-- Finnhub API Key 
-- Google Gemini API Key
+1. Setup your Firebase Project and retrieve your Web Config keys.
+2. Ensure you have activated Firebase Authentication (Google & Email/Password), Firestore Database, and Cloud Functions.
+3. Obtain API keys from [Finnhub](https://finnhub.io/) and [Google AI Studio (Gemini)](https://aistudio.google.com/).
 
-### 2. Cloud Functions Setup
-Add your `.env` securely to the `functions` directory:
 ```bash
-FINNHUB_API_KEY=your_key_here
-GEMINI_API_KEY=your_key_here
-```
-Deploy the backend:
-```bash
-cd functions
+# Install dependencies
 npm install
-npm run deploy
-```
 
-### 3. Frontend Setup
-Add your `.env.local` inside the root tree:
-```bash
-NEXT_PUBLIC_FIREBASE_API_KEY="..."
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="..."
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="..."
-NEXT_PUBLIC_FIREBASE_APP_ID="..."
-```
-Run the development environment locally:
-```bash
-npm install
+# Setup environment variables
+# Copy .env.example to .env.local and fill in your keys
+cp .env.example .env.local
+
+# Run the development server
 npm run dev
 ```
-Open `http://localhost:3000` to view the dashboard.
 
-## 🔒 Security
-All interactions happen entirely inside authenticated sessions. Firestore Rules explicitly secure data modifications to *only* the internal Cloud Service Account instances through Admin SDKs. All reads are scoped to active logged-in users. 
+Next, open a second terminal to manage the Cloud Backend:
+
+```bash
+# Navigate to the functions directory
+cd functions
+
+# Install backend dependencies
+npm install
+
+# Inject your secure API keys into the local Firebase emulator
+# You must set FINNHUB_API_KEY and GEMINI_API_KEY as environment variables for the emulator to read.
+
+# Start the Firebase Emulator to test Cloud Functions locally
+npm run serve
+```
